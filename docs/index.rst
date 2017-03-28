@@ -23,4 +23,4 @@ If you have any suggestions or questions about **kpfm** feel free to email me
 at ryanpdwyer@gmail.com.
 
 If you encounter any errors or problems with **kpfm**, please let me know!
-Open an Issue at the GitHub http://github.com/ryanpdwyer/kpfm main repository.
+Open an Issue at the GitHub ``http://github.com/ryanpdwyer/kpfm`` main repository.

@@ -8,6 +8,6 @@ At the command line via pip::
 
 Or install the latest GitHub version using::
 
-    $ git clone https://github.com/{ cookiecutter.github_username }}/kpfm.git
+    $ git clone https://github.com/ryanpdwyer/kpfm.git
     $ cd kpfm
     $ python setup.py install
