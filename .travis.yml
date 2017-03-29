@@ -3,6 +3,7 @@ language: python
 
 python:
   - "2.7"
+  - "3.5"
 
 # Anaconda information comes from https://gist.github.com/dan-blanchard/7045057
 # Setup anaconda
@@ -35,7 +36,7 @@ install:
   - source activate $ENV_NAME
   # Manually install complicated / binary packages here
   # (Atlas is a linear algebra library for numpy to use on linux)
-  - conda install atlas numpy scipy matplotlib
+  - conda install atlas numpy scipy matplotlib pandas h5py
   # This should install any additional pip dependencies and your package
   - python setup.py install
 

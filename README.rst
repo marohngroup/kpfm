@@ -38,7 +38,7 @@ A tentative structure for the repository is
         └── plot.py
 
 Each experiment is contained in its own module.
-The ``util`` module collects useful functions, decorators, code snippets and the like.
+The ``util`` module collects useful functions and decorators that are useful across a range of modules.
 Tests are placed in the ``tests`` module.
 Scratch contains a place for code that will not be maintained.
 If a particular experiment or procedure is useful over a longer period,
