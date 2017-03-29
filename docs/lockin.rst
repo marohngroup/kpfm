@@ -1,0 +1,2 @@
+.. automodule:: kpfm.lockin
+    :members:

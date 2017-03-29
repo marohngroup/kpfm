@@ -1,0 +1,6 @@
+PWD /Users/ryandwyer/Documents/Programming/mypython/kpfm/docs
+INPUT /usr/local/texlive/2016/texmf.cnf
+INPUT /usr/local/texlive/2016/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2016/texmf-var/web2c/xetex/xelatex.fmt
+INPUT /Users/ryandwyer/Documents/Programming/mypython/kpfm/docs/index.rst
+OUTPUT /Users/ryandwyer/Documents/Programming/mypython/kpfm/docs/index.log

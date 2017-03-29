@@ -44,8 +44,10 @@ setup(
     packages=find_packages(),
 
     # Add requirements here. If the requirement is difficult to install,
-    # add to docs/conf.py MAGIC_MOCK, and .travis.yml 'conda install ...'
-    install_requires=[],
+    # add to docs/conf.py MAGIC_MOCK and .travis.yml 'conda install ...'
+    # instead of here
+    # For example, numpy, scipy, matplotlib, pandas are there instead
+    install_requires=["decorator", "six"],
 
     tests_require=['nose'],
     test_suite='nose.collector',
