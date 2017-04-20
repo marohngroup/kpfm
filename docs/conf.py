@@ -31,7 +31,7 @@ if on_rtd:
                     'pandas', 'h5py', 'phasekick', 'phasekick2',
                     'scipy.signal.signaltools', 'sklearn',  'numpy.testing',
                     'scipy.signal', 'scipy.linalg', 'scipy.optimize',
-                    'scipy.integrate', 'sigutils']
+                    'scipy.integrate', 'sigutils', 'scipy.fftpack']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,

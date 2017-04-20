@@ -22,12 +22,18 @@ import scipy
 from distutils.version import LooseVersion
 from decorator import decorator
 
-if LooseVersion(scipy.__version__) > LooseVersion("0.18"):
-    from scipy import fftpack
-    next_fast_len = fftpack.next_fast_len
-else:
-    from scipy.signal import signaltools
-    next_fast_len = signaltools._next_regular
+# Fix errors on readthedocs by defining a dummy version of
+# next_fast_len if scipy is "mocked" (see docs/conf.py)
+try:
+    if LooseVersion(scipy.__version__) > LooseVersion("0.18"):
+        from scipy import fftpack
+        next_fast_len = fftpack.next_fast_len
+    else:
+        from scipy.signal import signaltools
+        next_fast_len = signaltools._next_regular
+except TypeError:
+    def next_fast_len(x):
+        return x
 
 
 
