@@ -28,7 +28,8 @@ if on_rtd:
 
     # Add any other difficult to install modules here
     MOCK_MODULES = ['numpy', 'scipy', 'matplotlib', 'matplotlib.pyplot',
-                    'pandas', 'h5py']
+                    'pandas', 'h5py', 'phasekick', 'phasekick2',
+                    'scipy.signal.signaltools', 'sklearn']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,
