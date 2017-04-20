@@ -47,7 +47,7 @@ setup(
     # add to docs/conf.py MAGIC_MOCK and .travis.yml 'conda install ...'
     # instead of here
     # For example, numpy, scipy, matplotlib, pandas are there instead
-    install_requires=["decorator", "six", "sigutils"],
+    install_requires=["decorator", "six", "sigutils", "munch"],
 
     tests_require=['nose'],
     test_suite='nose.collector',
