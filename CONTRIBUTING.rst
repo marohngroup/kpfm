@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/ryanpdwyer/kpfm/issues.
+Report bugs at https://github.com/marohngroup/kpfm/issues.
 
 If you are reporting a bug, please include:
 
@@ -43,7 +43,7 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/ryanpdwyer/kpfm/issues.
+The best way to send feedback is to file an issue at https://github.com/marohngroup/kpfm/issues.
 
 If you are proposing a feature:
 
@@ -82,7 +82,7 @@ Now you can make your changes locally.
 
 6. Submit a pull request through the GitHub website.
 
-.. _Fork: https://github.com/Nekroze/kpfm/fork
+.. _Fork: https://github.com/marohngroup/kpfm/fork
 
 Pull Request Guidelines
 -----------------------
@@ -93,14 +93,8 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 2.7.
-   Check https://travis-ci.org/ryanpdwyer/kpfm 
-   under pull requests for active pull requests to check that all configurations pass.
+3. The pull request should work for Python 2.7 and Python 3.5.
+   Check https://travis-ci.org/marohngroup/kpfm/pull_requests
+   to verify that all configurations pass.
 
 
-Tips
-----
-
-To run a subset of tests::
-
-	 $ py.test test/test_kpfm.py
