@@ -5,6 +5,9 @@ kpfm
 .. image:: https://travis-ci.org/marohngroup/kpfm.svg?branch=master
     :target: https://travis-ci.org/marohngroup/kpfm
 
+.. image:: http://readthedocs.org/projects/kpfm/badge/?version=latest
+    :target: http://kpfm.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 Kelvin Probe Force Microscopy (KPFM) data analysis.
 
