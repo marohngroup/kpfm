@@ -15,12 +15,12 @@ broader usefulness of the code).
 """
 
 from __future__ import division, print_function, absolute_import
+import io
 import six
 import h5py
 import scipy
 from distutils.version import LooseVersion
 from decorator import decorator
-
 
 if LooseVersion(scipy.__version__) > LooseVersion("0.18"):
     from scipy import fftpack
@@ -29,6 +29,24 @@ else:
     from scipy.signal import signaltools
     next_fast_len = signaltools._next_regular
 
+
+
+def align_labels(axes_list,lim, axis='y'):
+    for ax in axes_list:
+        t = ax.yaxis.label.get_transform()
+        x,y = ax.yaxis.label.get_position()
+        if axis == 'y':
+            ax.yaxis.set_label_coords(lim,y,t)
+        else:
+            ax.xaxis.set_label_coords(x, lim, t)
+
+@decorator
+def txt_filename(f, fname_or_fh, *args, **kwargs):
+    if isinstance(fname_or_fh, six.string_types):
+        with io.open(fname_or_fh, 'r') as fh:
+            return f(fh, *args, **kwargs)
+    else:
+        return f(fname_or_fh, *args, **kwargs)
 
 @decorator
 def h5filename(f, fname_or_fh, *args, **kwargs):
@@ -60,11 +78,12 @@ def h5filename(f, fname_or_fh, *args, **kwargs):
     >>> h5print('test.h5')
     [<HDF5 dataset "x": shape (), type "<i8">]
 
-    
-
     """
     if isinstance(fname_or_fh, six.string_types):
         with h5py.File(fname_or_fh, 'r') as fh:
             return f(fh, *args, **kwargs)
     else:
         return f(fname_or_fh, *args, **kwargs)
+
+
+from kpfm.util.readtxt import kpfm_data

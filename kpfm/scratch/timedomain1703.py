@@ -300,170 +300,6 @@ def get_xDCt(phaset, ft, A, tau, xDC0, dx_light, t0, tp):
         xDC = lambda t: (xresp(t) - xeq(t)) * A(t)/A(t0) + xeq(t)
         return xDC
 
-def make_simple_opt(t0, tp, Q, f0, f_HP, f_LP, fs):
-    """A variety of simple fitting functions."""
-    b, a = signal.butter(2, np.array([f_HP, f_LP]) / (fs/2), analog=False, btype='bandpass')
-    
-    k_ringdown = 2*np.pi*f0 / Q
-    def simp_opt(t, f_i, df, f_f, X0, Y0, tau):
-        """Initial frequency f_i, light-induced frequency shift df,
-        final frequency f_f, initial phase X0, Y0, time constant tau.
-
-        Use the fixed ringdown time k_ringdown."""
-        phi = pk_phase(f_i, df, f_f, tau, t0, tp)(t)
-        amp = np.exp(-k_ringdown*t)
-        return osc(phi, amp, X0, Y0)
-
-    simp_opt.A = lambda t, f_i, df, f_f, X0, Y0, tau: np.exp(-k_ringdown*t)
-    simp_opt.phi = lambda t, f_i, df, f_f, X0, Y0, tau: pk_phase(f_i, df, f_f, tau, t0, tp)(t)
-
-    def simp_opt2(t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio):
-        """
-        Parameters:
-            f_i: initial frequency
-             df: light-induced frequency shift
-            f_f: final frequency
-             X0: initial phase (cosine term)
-             Y0: initial phase (sine term)
-           tau1: fast time constant
-           tau2: slow time constant
-          ratio: fraction of df associated with fast time constant tau1
-
-        Fixed:
-            k_ringdown: single dissipation inverse time constant
-
-     """
-        df1 = ratio * df
-        df2 = (1 - ratio) * df
-        amp = np.exp(-k_ringdown*t)
-        phi = (pk_phase(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_phase(0.0, df2, 0.0, tau2, t0, tp)(t)
-               )
-        return osc(phi, amp, X0, Y0)
-
-    simp_opt2.A = lambda t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio: np.exp(-k_ringdown*t)
-    simp_opt2.phi = lambda t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio: (
-        pk_phase(f_i, ratio * df, f_f, tau1, t0, tp)(t)
-               + pk_phase(0.0, (1 - ratio) * df, 0.0, tau2, t0, tp)(t)
-        )
-
-
-    def simp_optDC(t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio, Q0, Qlight, dx_light):
-        """
-        Parameters:
-                f_i: initial frequency
-                 df: light-induced frequency shift
-                f_f: final frequency
-                 X0: initial phase (cosine term)
-                 Y0: initial phase (sine term)
-               tau1: fast time constant
-               tau2: slow time constant
-              ratio: fraction of df associated with fast time constant tau1
-                 Q0: Initial quality factor (before light)
-             Qlight: Quality factor under illumination
-           dx_light: light induced change in position
-
-
-        Fixed:
-            k_ringdown: single dissipation inverse time constant
-            """
-
-
-        df1 = ratio * df
-        df2 = (1 - ratio) * df
-        k0 = 2*np.pi*f0 /Q0
-        klight = 2*np.pi*f0 / Qlight
-        # A, phase, freq vs time.
-        A = getA(k0, klight, k0, t0, tp)
-
-        phase = lambda t: (pk_phase(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_phase(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-        freq = lambda t: (pk_freq(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_freq(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-        xDC = get_xDCt(phase, freq, A, tau1, 0.0, dx_light, t0, tp)
-
-        return osc_phase(t, phase, A, X0, Y0) + xDC(t)
-
-    def simp_optDCphi(t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio, Q0, Qlight, dx_light):
-        """
-        Parameters:
-                f_i: initial frequency
-                 df: light-induced frequency shift
-                f_f: final frequency
-                 X0: initial phase (cosine term)
-                 Y0: initial phase (sine term)
-               tau1: fast time constant
-               tau2: slow time constant
-              ratio: fraction of df associated with fast time constant tau1
-                 Q0: Initial quality factor (before light)
-             Qlight: Quality factor under illumination
-           dx_light: light induced change in position
-
-
-        Fixed:
-            k_ringdown: single dissipation inverse time constant
-            """
-
-
-        df1 = ratio * df
-        df2 = (1 - ratio) * df
-        k0 = 2*np.pi*f0 /Q0
-        klight = 2*np.pi*f0 / Qlight
-        # A, phase, freq vs time.
-        A = getA(k0, klight, k0, t0, tp)
-
-        phase = lambda t: (pk_phase(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_phase(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-        freq = lambda t: (pk_freq(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_freq(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-        xDC = get_xDCt(phase, freq, A, tau1, 0.0, dx_light, t0, tp)
-
-        return osc_phase(t, phase, A, X0, Y0) + xDC(t)
-
-    def _simp_optDCDet_A(t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio, Q0, Qlight, dx_light):
-        df1 = ratio * df
-        df2 = (1 - ratio) * df
-        k0 = 2*np.pi*f0 /Q0
-        klight = 2*np.pi*f0 / Qlight
-        return getA(k0, klight, k0, t0, tp)(t)
-
-    def _simp_optDCDet_phi(t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio, Q0, Qlight, dx_light):
-        df1 = ratio * df
-        df2 = (1 - ratio) * df
-        k0 = 2*np.pi*f0 /Q0
-        klight = 2*np.pi*f0 / Qlight
-        return (pk_phase(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_phase(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-    def simp_optDCDet(t, f_i, df, f_f, X0, Y0, tau1, tau2, ratio, Q0, Qlight, dx_light):
-        df1 = ratio * df
-        df2 = (1 - ratio) * df
-        k0 = 2*np.pi*f0 /Q0
-        klight = 2*np.pi*f0 / Qlight
-        # A, phase, freq vs time.
-        A = getA(k0, klight, k0, t0, tp)
-
-        phase = lambda t: (pk_phase(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_phase(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-        freq = lambda t: (pk_freq(f_i, df1, f_f, tau1, t0, tp)(t)
-               + pk_freq(0.0, df2, 0.0, tau2, t0, tp)(t))
-
-        xDC = get_xDCt(phase, freq, A, tau1, 0.0, dx_light, t0, tp)
-
-        xout = osc_phase(t, phase, A, X0, Y0) + xDC(t)
-        return signal.lfilter(b, a, xout)[500:]
-
-    simp_optDCDet.A = _simp_optDCDet_A
-    simp_optDCDet.phi = _simp_optDCDet_phi
-
-    return simp_opt, simp_opt2, simp_optDCDet
-
-
 def fit(f, xdata, ydata, p0=None, bounds=(-np.inf, np.inf), tfit=None, name=''):
     fit_data = munch.Munch()
     fit_data.popt, fit_data.pcov = optimize.curve_fit(f, xdata, ydata, p0=p0, bounds=bounds)
@@ -533,12 +369,63 @@ def make_col(f, t, div):
     
     return col
 
-# class WorkupForceEFM(object):
-#     def __init__(self, t, x, f0, Nm, Nc):
-#         self.t = t
-#         self.x = x
-#         self.f0 = f0
-#         self.Nm = Nm
-#         self.Nc = Nc
+def make_L(col, initial=1000.0):
+    N = col.shape[1]
+    L = np.zeros((N, N))
+    for j in xrange(N):
+        for k in xrange(N):
+            if k == 0:
+                L[j,k] = initial
+            elif j >= k:
+                L[j,k] = 1.0
+    return L
 
-    
+class WorkupForceEFM(object):
+    def __init__(self, fm, fc, Nm, Nc):
+        self.fm = fm
+        self.fc = fc
+        self.Nm = Nm
+        self.Nc = Nc
+
+    def __repr__(self):
+        return "WorkupForceEFM(fm={},fc={},Nm={},Nc={})".format(self.fm,
+            self.fc, self.Nm, self.Nc)
+
+    def __call__(self, t, x):
+        fm = self.fm
+        fc = self.fc
+        Nm = self.Nm
+        Nc = self.Nc
+        Npts_per_column = [Nm, Nm, Nm, Nm, Nc, Nc, Nc]
+        cols = [make_col(lambda t: np.cos(2*np.pi*fm*t), t, Nm),
+        make_col(lambda t: np.sin(2*np.pi*fm*t), t, Nm),
+        make_col(lambda t: np.cos(4*np.pi*fm*t), t, Nm),
+        make_col(lambda t: np.sin(4*np.pi*fm*t), t, Nm),
+        make_col(lambda t: np.cos(2*np.pi*fc*t), t, Nc),
+        make_col(lambda t: np.sin(2*np.pi*fc*t), t, Nc),
+        make_col(lambda t: np.ones_like(t), t, Nc),
+       ]
+
+        lengths = [col.shape[1] for col in cols]
+        slices = np.r_[0, np.cumsum(lengths)]
+
+        Afull = np.concatenate(cols, axis=1)
+        fit = linalg.lstsq(Afull, x)
+        all_params = fit[0]
+        params = [all_params[slices[i]:slices[i+1]] for i in range(len(slices)-1)]
+        ts = [t[::Npts] for Npts in Npts_per_column]
+        resid = x - np.dot(Afull, all_params)
+
+        return munch.Munch(t=t, x=x,
+                        fit=fit,
+                        all_params=all_params,
+                        params=params,
+                        t_mod=t[::Nm],
+                        t_cant=t[::Nc],
+                        ts=ts,
+                        resid=resid)
+
+
+
+
+

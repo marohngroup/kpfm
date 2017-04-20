@@ -4,7 +4,8 @@
 lockin
 ======
 
-The module contains classes and functions for performing digital lock-in
+This module contains classes and functions for performing digital lock-in
+amplifier data analysis.
 """
 from __future__ import division, absolute_import, print_function
 import numpy as np
@@ -76,16 +77,30 @@ class LockIn(object):
     li('t') # Shortcut for accessing masked version of the signal.
 
     """
-    def __init__(self, t, x, fs):
+    def __init__(self, t, x, fs=None):
         self.t = t
         self.x = x
-        self.fs = fs
+
+        if fs is not None:
+            self.fs = fs
+        else:
+            self.fs = 1/np.mean(np.gradient(t))
 
         self.f0_est = freq_from_fft(self.x, self.fs)
+
+    @classmethod
+    def from_x(Cls, x, fs, t0=0):
+        """Generate the time array internally."""
+        t = t0 + np.arange(x.size) / fs
+        return Cls(t, x, fs)
 
     def __call__(self, key):
         """Shorthand for validly masked section of any data array."""
         return getattr(self, key)[self.m]
+
+    def __repr__(self):
+        f0 = getattr(self, 'f0', self.f0_est)
+        return "LockIn(f0={})".format(f0)
 
     def run(self, f0=None, fir=None):
         """Run the lock-in amplifier at reference frequency ``f0``,
@@ -93,6 +108,8 @@ class LockIn(object):
         """
         if f0 is None:
             self.f0 = f0 = self.f0_est
+        else:
+            self.f0 = f0
         if fir is not None:
             self.fir = fir
 
@@ -311,7 +328,6 @@ or provide more data.""".format(coeffs, t.size))
 
         self._output_df_X_Y()
 
-
     def decimate(self, factor=None):
         if factor is None:
             factor = int(self.fs//self.f0)
@@ -372,14 +388,15 @@ or provide more data.""".format(coeffs, t.size))
         self.phiabs = self.phi + self.t*2*np.pi*self.f0corr + self.phi0abs
         return popt, pcov
 
-
+def phase_err(t, phase, dphi_max, x):
+    return abs(abs(phase - (x[0]*t + x[1])) - dphi_max) - dphi_max
 
 def _fit_phase(t, phase, amp, phase_reversals=True):
     if phase_reversals:
         dphi_max = np.pi/2
     else:
         dphi_max = np.pi
-    f = lambda x: np.sum(amp**2*abs((abs(abs(phase - (x[0]*t + x[1])) - dphi_max) - dphi_max))**2)
+    f = lambda x: np.sum(amp**2 * abs((abs(abs(phase - (x[0]*t + x[1])) - dphi_max) - dphi_max))**2)
     return f
 
 def _fit_phase_only(t, phase, amp, phase_reversals=True):

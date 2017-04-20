@@ -2,8 +2,8 @@
 kpfm
 =============================
 
-.. image:: https://travis-ci.org/ryanpdwyer/kpfm.png?branch=master
-    :target: https://travis-ci.org/ryanpdwyer/kpfm
+.. image:: https://travis-ci.com/ryanpdwyer/kpfm.png?branch=master
+    :target: https://travis-ci.com/ryanpdwyer/kpfm
 
 
 Kelvin Probe Force Microscopy (KPFM) data analysis.
