@@ -16,6 +16,8 @@ broader usefulness of the code).
 
 from __future__ import division, print_function, absolute_import
 import io
+import os
+import errno
 import six
 import h5py
 import scipy
@@ -35,6 +37,15 @@ except TypeError:
     def next_fast_len(x):
         return x
 
+
+def silent_remove(filename):
+    """If ``filename`` exists, delete it. Otherwise, return nothing.
+       See http://stackoverflow.com/q/10840533/2823213."""
+    try:
+        os.remove(filename)
+    except OSError as e:  # this would be "except OSError, e:" before Python 2.6
+        if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
+            raise  # re-raise exception if a different error occured
 
 
 def align_labels(axes_list, lim, axis='y'):
@@ -100,6 +111,7 @@ def h5filename(f, fname_or_fh, *args, **kwargs):
             return f(fh, *args, **kwargs)
     else:
         return f(fname_or_fh, *args, **kwargs)
+
 
 
 from kpfm.util.readtxt import kpfm_data

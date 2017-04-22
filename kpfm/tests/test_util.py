@@ -1,34 +1,22 @@
-from __future__ import division, absolute_import, print_function
-from numpy.testing import assert_array_almost_equal
-import numpy as np
-
-from kpfm.lockin import LockIn
-
-
-def test_lockin_even_fir():
-    xb = np.array([-1, -np.sqrt(2)/2, 0, np.sqrt(2)/2,
-                    1, np.sqrt(2)/2, 0, -np.sqrt(2)/2])
-    repeats = 128
-    N = xb.size * repeats
-    x = np.tile(xb, repeats)
-    t = np.arange(N)/16.0
-    li = LockIn(t, x, fs=16.0)
-    fir = np.ones(16)/16.0
-    li.run(f0=2.0, fir=fir)
-    li.manual_phase(0.0)
-    assert_array_almost_equal(-np.ones_like(li("z"), dtype=np.complex128),
-                              li("z"))
+# -*- coding: utf-8 -*-
+import unittest
+import h5py
+from kpfm.util import h5filename, silent_remove
 
 
-def test_lockin_odd_fir():
-    xb = np.sin(2*np.pi/9 * np.arange(9))
-    repeats = 96
-    N = xb.size * repeats
-    x = np.tile(xb, repeats)
-    t = np.arange(N)/27.0
-    li = LockIn(t, x, fs=27.0)
-    fir = np.ones(27)/27.0
-    li.run(f0=3.0, fir=fir)
-    li.manual_phase(0.0)
-    assert_array_almost_equal(-1j*np.ones_like(li("z"), dtype=np.complex128),
-                              li("z"))
+class TestH5Filename(unittest.TestCase):
+
+    def setUp(self):
+        self.fname = '.test.h5'
+        with h5py.File(self.fname) as fh:
+            fh['x'] = 2
+
+    def test_h5_filename(self):
+        @h5filename
+        def h5print(fh):
+            print(fh.values())
+
+        h5print(self.fname)
+
+    def tearDown(self):
+        silent_remove(self.fname)
