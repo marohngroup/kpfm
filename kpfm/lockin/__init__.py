@@ -73,8 +73,7 @@ class LockIn(object):
     available for use.
 
     >>> li.phase()
-
-    li('t') # Shortcut for accessing masked version of the signal.
+    >>> li('t') # Shortcut for accessing masked version of the signal.
 
     """
     def __init__(self, t, x, fs=None):
@@ -122,7 +121,10 @@ class LockIn(object):
         # Valid region mask
         # This is borrowed explicitly from scipy.signal.sigtools.fftconvolve
         self.m = m = np.zeros_like(self.t, dtype=bool)
-        self.m[_centered(indices, self.t.size - n_fir + 1)] = True
+        mask_indices = _centered(indices, self.t.size - n_fir + 1)
+        if n_fir % 2 == 0:
+            mask_indices += 1
+        self.m[mask_indices] = True
 
         self.A = abs(self.z)
         self.phi = np.angle(self.z)
@@ -241,6 +243,8 @@ or provide more data.""".format(coeffs, t.size))
             delta_f0 = 0.0
 
         self.phi_fit = self.t * delta_f0 * 2 * np.pi + self.phi0
+        self.dphi = np.unwrap(((self.phi - self.phi_fit + np.pi) % (2*np.pi))
+                              - np.pi)
 
         self._output_df_X_Y()
 

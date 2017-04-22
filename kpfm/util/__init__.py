@@ -37,17 +37,27 @@ except TypeError:
 
 
 
-def align_labels(axes_list,lim, axis='y'):
+def align_labels(axes_list, lim, axis='y'):
+    """Align matplotlib axis labels to the same horizontal (y-axis)
+    or vertical (x-axis) position.
+    """
     for ax in axes_list:
         t = ax.yaxis.label.get_transform()
         x,y = ax.yaxis.label.get_position()
         if axis == 'y':
-            ax.yaxis.set_label_coords(lim,y,t)
+            ax.yaxis.set_label_coords(lim, y, t)
         else:
             ax.xaxis.set_label_coords(x, lim, t)
 
 @decorator
 def txt_filename(f, fname_or_fh, *args, **kwargs):
+    """Decorator to allow seamless use of filenames rather than
+    file handles for functions that operate on a text file.
+
+    Usage
+    ----- 
+    To use this decorator, write the function to take a file object
+    as the function's first argument."""
     if isinstance(fname_or_fh, six.string_types):
         with io.open(fname_or_fh, 'r') as fh:
             return f(fh, *args, **kwargs)
@@ -78,7 +88,7 @@ def h5filename(f, fname_or_fh, *args, **kwargs):
     >>> h5print(fh)
     [<HDF5 dataset "x": shape (), type "<i8">]
     
-    or and call the function on the filename
+    or call the function on the filename
 
     >>> fh.close()
     >>> h5print('test.h5')
