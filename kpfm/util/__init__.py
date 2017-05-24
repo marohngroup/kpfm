@@ -53,12 +53,27 @@ def align_labels(axes_list, lim, axis='y'):
     or vertical (x-axis) position.
     """
     for ax in axes_list:
-        t = ax.yaxis.label.get_transform()
-        x,y = ax.yaxis.label.get_position()
         if axis == 'y':
+            t = ax.yaxis.label.get_transform()
+            x,y = ax.yaxis.label.get_position()
             ax.yaxis.set_label_coords(lim, y, t)
         else:
+            t = ax.xaxis.label.get_transform()
+            x,y = ax.xaxis.label.get_position()
             ax.xaxis.set_label_coords(x, lim, t)
+
+
+def color2gray(x):
+    """Convert an RGB or RGBA (Red Green Blue Alpha) color tuple
+       to a grayscale value."""
+    if len(x) == 3:
+        r, g, b = x
+        a = 1
+    elif len(x) == 4:
+        r, g, b, a = x
+    else:
+        raise ValueError("Incorrect tuple length")
+    return (r * 0.299 + 0.587*g + 0.114*b) * a
 
 @decorator
 def txt_filename(f, fname_or_fh, *args, **kwargs):
