@@ -1,34 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, absolute_import, print_function
 import numpy as np
-from scipy import signal
-from scipy.special import j0, j1, jn, jn_zeros
-from scipy import optimize
-from matplotlib import gridspec
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import h5py
 import pandas as pd
 idx = pd.IndexSlice
-import sigutils
-import click
-import h5py
-import sys
-import os
-from tqdm import tqdm
-import io
-import pathlib
 from scipy import interpolate
-from scipy import signal
 from scipy import stats
-from six import string_types
-from scipy.optimize import curve_fit
-from scipy.signal.signaltools import _centered
 from collections import OrderedDict
-from kpfm import lockin
 from kpfm.lockin import LockIn, FIRStateLockVarF, FIRStateLock
-from bunch import Bunch
-
 
 
 def masklh(x, l=None, r=None):
