@@ -392,6 +392,137 @@ or provide more data.""".format(coeffs, t.size))
         self.phiabs = self.phi + self.t*2*np.pi*self.f0corr + self.phi0abs
         return popt, pcov
 
+
+
+class FIRStateLock(object):
+    """
+    Lock-in amplifier object which uses an FIR filter, decimates data, and 
+    processes data in batches.
+
+    Pass data in with the ``filt`` function.
+    Lock-in amplifier output stored in ``z_out``.
+    Time array accessible with the ``get_t`` function.
+
+    Parameters
+    ----------
+    fir: array_like
+        finite-impulse-response (FIR) filter coefficients
+    dec: int
+        Decimation factor (output sampling rate = input sampling rate /dec)
+    f0: scalar
+        Lock-in amplifier reference frequency.
+    phi0: scalar
+        Initial lock-in amplifier phase.
+    t0: scalar, optional
+        Inital time associated with the first incoming data point.
+        Defaults to 0.
+    fs: scalar, optional
+        Input sampling rate. Defaults to 1.
+    """
+    def __init__(self, fir, dec, f0, phi0, t0=0, fs=1.):
+        self.fir = fir
+        self.nfir_mid = (len(fir) - 1)//2
+        self.dec = dec
+        self.f0 = f0
+        self.w0 = f0/fs
+        self.phi0 = self.phi_i = phi0 + 2*np.pi*self.w0
+        self.t0 = t0
+        self.fs = fs
+        self.t0_dec = t0 + self.nfir_mid / self.fs
+        self.z = np.array([], dtype=np.complex128)
+        self.z_out = np.array([], dtype=np.complex128)
+
+    def filt(self, data):
+        n = self.fir.size
+        phi = (-2*np.pi*self.w0*np.arange(1, data.size+1) + self.phi_i
+               ) % (2*np.pi)
+        self.phi_i = phi[-1]
+
+        z = np.r_[self.z, data * np.exp(1j*phi)]
+        y = signal.fftconvolve(z, 2*self.fir, mode="full")
+
+        indices = np.arange(y.size)
+        m = indices[n-1:-n+1]
+        if len(m) == 0:
+            self.z = z
+        else:
+            m_dec = m[::self.dec]
+            self.z_out = np.r_[self.z_out, y[m_dec]]
+            self.z = z[m_dec[-1] - (n-1) + self.dec:]
+
+    def get_t(self):
+        return self.t0_dec + np.arange(self.z_out.size)/self.fs * self.dec
+
+
+class FIRStateLockVarF(object):
+    """
+    Variable frequency lock-in amplifier object which uses an FIR filter,
+    decimates data, and processes data in batches.
+
+    Pass data in with the ``filt`` function.
+    Lock-in amplifier output stored in ``z_out``.
+    Time array corresponding to the data in ``z_out`` accessible
+    with the ``get_t`` function.
+
+    Parameters
+    ----------
+    fir: array_like
+        finite-impulse-response (FIR) filter coefficients
+    dec: int
+        Decimation factor (output sampling rate = input sampling rate /dec)
+    f0: function
+        Lock-in amplifier reference frequency as a function of time
+    phi0: scalar
+        Initial lock-in amplifier phase.
+    t0: scalar, optional
+        Inital time associated with the first incoming data point.
+        Defaults to 0.
+    fs: scalar, optional
+        Input sampling rate. Defaults to 1.
+    """
+    def __init__(self, fir, dec, f0, phi0, t0=0, fs=1.):
+        self.fir = fir
+        self.nfir_mid = (len(fir) -1)//2
+        self.dec = dec
+        self.f0 = f0
+        self.w0 = lambda t: f0(t) / fs
+        self.phi0 = self.phi_i = phi0 + 2*np.pi*self.w0(t0)
+        self.t0 = t0
+        self._current_t = t0  # This field updates as incoming data arrives
+        self.fs = fs
+        self.t0_dec = t0 + self.nfir_mid / self.fs
+        # Stores filtered, lock-in data waiting to be decimated
+        self.z = np.array([], dtype=np.complex128)
+        # Decimated output
+        self.z_out = np.array([], dtype=np.complex128)
+
+    def filt(self, data):
+        n = self.fir.size
+        m = data.size
+        t = self._current_t + np.arange(m, dtype=np.float64) / self.fs
+        w = self.w0(t)
+        phi = (-2*np.pi*np.cumsum(w) + self.phi_i) % (2*np.pi)
+        self.phi_i = phi[-1]
+        self._current_t = t[-1]
+
+        z = np.r_[self.z, data * np.exp(1j*phi)]
+        y = signal.fftconvolve(z, 2*self.fir, mode="full")
+
+        indices = np.arange(y.size)
+        m = indices[n-1:-n+1]
+        if len(m) == 0:
+            self.z = z
+        else:
+            m_dec = m[::self.dec]
+            self.z_out = np.r_[self.z_out, y[m_dec]]
+            self.z = z[m_dec[-1] - (n-1) + self.dec:]
+
+    def get_t(self):
+        return self.t0_dec + np.arange(self.z_out.size)/self.fs * self.dec
+
+
+
+
 def phase_err(t, phase, dphi_max, x):
     return abs(abs(phase - (x[0]*t + x[1])) - dphi_max) - dphi_max
 
