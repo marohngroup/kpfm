@@ -38,6 +38,9 @@ except TypeError:
         return x
 
 
+
+
+
 def silent_remove(filename):
     """If ``filename`` exists, delete it. Otherwise, return nothing.
        See http://stackoverflow.com/q/10840533/2823213."""
@@ -128,5 +131,40 @@ def h5filename(f, fname_or_fh, *args, **kwargs):
         return f(fname_or_fh, *args, **kwargs)
 
 
+def h5ls_str(g, offset='', print_types=True):
+    """Prints the input file/group/dataset (g) name and begin iterations on its
+    content.
+    
+    See goo.gl/2JiUQK."""
+    string = []
+    if isinstance(g, h5py.File):
+        string.append(offset+repr(g.file))
+    elif isinstance(g, h5py.Dataset):
+        if print_types:
+            string.append(offset+g.name+'  '+repr(g.shape)+'  '+(g.dtype.str))
+        else:
+            string.append(offset+g.name+'  '+repr(g.shape))
+    elif isinstance(g, h5py.Group):
+        string.append(offset+g.name)
+    else:
+        raise ValueError('WARNING: UNKNOWN ITEM IN HDF5 FILE'+g.name)
+    if isinstance(g, h5py.File) or isinstance(g, h5py.Group):
+        for key, subg in dict(g).items():
+            string.append(h5ls_str(subg, offset + '    ',
+                                   print_types=print_types))
+    return "\n".join(string)
+
+
+def h5ls(*args):
+    """List the contents of an HDF5 file object or group.
+    Accepts a file / group handle, or a string interpreted as the hdf5
+    file path."""
+    for arg in args:
+        if isinstance(arg, six.string_types):
+            fh = h5py.File(arg, mode='r')
+            print(h5ls_str(fh))
+            fh.close()
+        else:
+            print(h5ls_str(arg))
 
 from kpfm.util.readtxt import kpfm_data
