@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-============================
-pkefm
-============================
+======
+pk-EFM
+======
 
 The goal here is to define clear interfaces / boundaries between different parts
-of the phasekick workup. So far we have,
+of the pk-EFM workup. So far we have,
 
 1. Raw h5 file, cantilever oscillation data => cantilever position, timing information
      - Note: Should be general: tp_light, tp_tip 
@@ -31,8 +31,8 @@ import numpy as np
 from .phasekick import individual_phasekick2, weight, get_plot_data, pk_dictionary_to_dataframe, make_df_dict
 
 def calc_t2_tp(half_periods, N2even):
-    t2 = np.sum(gr["half periods [s]"][:N2even+1])
-    tp = np.sum(gr["half periods [s]"][N2even+1:])
+    t2 = np.sum(half_periods[:N2even+1])
+    tp = np.sum(half_periods[N2even+1:])
     return t2, tp
 
 def _h5gr_to_workup_input_bnc(gr):
@@ -71,13 +71,14 @@ def h5gr_to_workup_input(gr, format):
 
     
     The dictionary contains:
-    y: Cantilever oscillation data
-    dt: spacing between 
-    t0: Initial time
-    t1: Time with V = V_1
-    t2: Time with V = V_2
-    tp: Time with V = V_p
-    t3: Time with V = V_3
+
+        y: Cantilever oscillation data
+        dt: spacing between 
+        t0: Initial time
+        t1: Time with V = V_1
+        t2: Time with V = V_2
+        tp: Time with V = V_p
+        t3: Time with V = V_3
 
     """
     if format == 'BNC':
