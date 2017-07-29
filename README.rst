@@ -9,6 +9,9 @@ kpfm
     :target: http://kpfm.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+.. image:: https://zenodo.org/badge/86489214.svg
+   :target: https://zenodo.org/badge/latestdoi/86489214
+
 Kelvin Probe Force Microscopy (KPFM) data analysis.
 
 
